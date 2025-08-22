@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+    <title>Em busca da cidade perdida</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Bai Jamjuree', sans-serif;
+            background: linear-gradient(to bottom, #0c1445, #1c1c3a, #0a0822);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Efeito de partículas no fundo */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 5px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 3px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 7px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .passo {
+            display: none;
+            background: rgba(13, 19, 33, 0.85);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5),
+                        0 0 0 1px rgba(255, 215, 100, 0.2),
+                        0 0 20px rgba(255, 180, 50, 0.3);
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.8s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .passo::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(to right, #ff9d00, #ffd700, #ff9d00);
+            border-radius: 5px 5px 0 0;
+        }
+
+        .passo.ativo {
+            display: block;
+        }
+
+        .passo img {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .passo p {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            color: #e9e2c9;
+        }
+
+        .botoes-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn-proximo {
+            background: linear-gradient(to bottom, #ff9d00, #ff7700);
+            color: #1a1a2e;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-family: 'Bai Jamjuree', sans-serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 119, 0, 0.4),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            min-width: 200px;
+        }
+
+        .btn-proximo::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-proximo:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 119, 0, 0.6),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-proximo:hover::before {
+            left: 100%;
+        }
+
+        .btn-proximo:active {
+            transform: translateY(1px);
+        }
+
+        .titulo-aventura {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .titulo-aventura h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5),
+                         0 0 20px rgba(255, 215, 0, 0.3),
+                         2px 2px 0 #b38700;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .titulo-aventura .subtitulo {
+            font-size: 1.2rem;
+            color: #c9b66f;
+            font-style: italic;
+        }
+
+        .progresso {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .barra-progresso {
+            height: 100%;
+            background: linear-gradient(to right, #ff9d00, #ffd700);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .inventario {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(13, 19, 33, 0.9);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 215, 100, 0.3);
+            backdrop-filter: blur(5px);
+            z-index: 100;
+        }
+
+        .inventario h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .itens {
+            display: flex;
+            gap: 10px;
+        }
+
+        .item {
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+
+        .item.ativo {
+            opacity: 1;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+        }
+
+        .item i {
+            color: #ffd700;
+            font-size: 1.2rem;
+        }
+
+        .musica-controle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(13, 19, 33, 0.9);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 215, 100, 0.3);
+            z-index: 100;
+        }
+
+        .musica-controle i {
+            color: #ffd700;
+            font-size: 1.5rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @media (max-width: 768px) {
+            .passo {
+                padding: 20px;
+            }
+            
+            .passo p {
+                font-size: 1.1rem;
+            }
+            
+            .btn-proximo {
+                padding: 12px 20px;
+                font-size: 1rem;
+                min-width: 160px;
+            }
+            
+            .titulo-aventura h1 {
+                font-size: 2.2rem;
+            }
+            
+            .botoes-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .inventario {
+                top: 10px;
+                right: 10px;
+                padding: 10px;
+            }
+            
+            .item {
+                width: 35px;
+                height: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="titulo-aventura">
+        <h1>EM BUSCA DA CIDADE PERDIDA</h1>
+        <div class="subtitulo">Uma aventura épica te aguarda...</div>
+    </div>
+
+    <div class="progresso">
+        <div class="barra-progresso" id="barra-progresso"></div>
+    </div>
+
+    <div class="inventario">
+        <h3>INVENTÁRIO</h3>
+        <div class="itens">
+            <div class="item" id="item-mapa"><i class="fas fa-map"></i></div>
+            <div class="item" id="item-bussola"><i class="fas fa-compass"></i></div>
+            <div class="item" id="item-lanterna"><i class="fas fa-lightbulb"></i></div>
+        </div>
+    </div>
+
+    <div class="musica-controle" id="controle-musica">
+        <i class="fas fa-volume-up"></i>
+    </div>
+
+    <main>
+        <div class="passo ativo" id="passo-0">
+            <img src="https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Livro antigo em uma biblioteca">
+            <p>Um dia desses, dentro de um livro da biblioteca da escola, eu descobri uma carta antiga sobre uma cidade perdida, escondida por riquezas e belezas naturais. Nessa carta, a autora deixa algumas pistas para encontrar essa cidade e eu decidi segui-las!</p>
+            <div class="botoes-container">
+                <button class="btn-proximo" data-proximo="1">Rio de Janeiro</button>
+                <button class="btn-proximo" data-proximo="2">Pernambuco</button>
+            </div>
+        </div>
+        <div class="passo" id="passo-1">
+            <img src="https://images.unsplash.com/photo-1516306580123-e6e52b1b7b5f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Vista do Pico da Tijuca no Rio de Janeiro">
+            <p>Você começa sua jornada no Rio de Janeiro, subindo o Pico da Tijuca ao amanhecer para encontrar a primeira pista. O ar está fresco e a vista é deslumbrante.</p>
+            <div class="botoes-container">
+                <button class="btn-proximo" data-proximo="3">Procurar a pista no topo do pico</button>
+                <button class="btn-proximo" data-proximo="4">Desistir e voltar para casa</button>
+            </div>
+        </div>
+        <div class="passo" id="passo-2">
+            <img src="https://images.unsplash.com/photo-1584553917080-9c5c16fbcf4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Vista da cidade de Olinda em Pernambuco">
+            <p>Em Pernambuco, você visita a histórica cidade de Olinda. Na carta, uma das pistas indica que para localizar a entrada para a cidade perdida você deve procurar a próxima pista em um dos pontos turísticos da cidade. Por qual você começa?</p>
+            <div class="botoes-container">
+                <button class="btn-proximo" data-proximo="5">Investigar as igrejas antigas</button>
+                <button class="btn-proximo" data-proximo="6">Explorar as praias próximas</button>
+            </div>
+        </div>
+        <div class="passo" id="passo-3">
+            <img src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Inscrição antiga em pedra no topo de uma montanha">
+            <p>No topo do Pico da Tijuca, após uma escalada desafiadora, você encontra uma antiga inscrição em uma pedra apontando que a próxima pista está localizada no coração da Amazônia.</p>
+            <div class="botoes-container">
+                <button class="btn-proximo" data-proximo="7">Seguir para o Amazonas</button>
+            </div>
+        </div>
+
+        <div class="passo" id="passo-4">
+            <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Pessoa voltando para casa ao entardecer">
+            <p>Você decide que a aventura é grande demais e volta para casa, mas sempre se pergunta o que teria encontrado. Às vezes, as maiores descobertas exigem coragem para enfrentar o desconhecido.</p>
+        </div>
+
+        <div class="passo" id="passo-5">
+            <img src="https://images.unsplash.com/photo-1589994965851-a8f479c573a9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Igreja antiga com detalhes em ouro">
+            <p>Nas igrejas de Olinda, após muito procurar, você descobre um mapa antigo escondido atrás de um altar. O mapa está desbotado, mas claramente aponta que a próxima pista está no Amazonas.</p>
+            <div class="botoes-container">
+                <button class="btn-proximo" data-proximo="7">Viajar para o Amazonas</button>
+            </div>
+        </div>
+
+        <div class="passo" id="passo-6">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Praia tropical com caverna ao fundo">
+            <p>Explorando as praias, você encontra uma caverna escondida. Ao entrar, descobre que ela leva a um beco sem saída. A busca continua...</p>
+            <div class="botoes-container">
+                <button class="btn-proximo" data-proximo="8">Voltar e explorar as igrejas</button>
+            </div>
+        </div>
+
+        <div class="passo" id="passo-7">
+            <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Rio na floresta amazônica com bifurcação">
+            <p>No Amazonas, a busca pela cidade perdida se intensifica. A floresta é densa e cheia de sons misteriosos. Você se depara com um rio bifurcado e precisa decidir qual caminho seguir.</p>
+            <div class="botoes-container">
+                <button class="btn-proximo" data-proximo="9">Seguir pelo rio à esquerda</button>
+                <button class="btn-proximo" data-proximo="10">Seguir pelo rio à direita</button>
+            </div>
+        </div>
+
+        <div class="passo" id="passo-8">
+            <img src="https://images.unsplash.com/photo-1515586838455-8f8f940d6853?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Mapa antigo desdobrado">
+            <p>De volta às igrejas, com mais paciência e determinação, você finalmente encontra o mapa antigo escondido em um compartimento secreto. Agora, para o Amazonas!</p>
+            <div class="botoes-container">
+                <button class="btn-proximo" data-proximo="7">Seguir para o Amazonas</button>
+            </div>
+        </div>
+
+        <div class="passo" id="passo-9">
+            <img src="https://images.unsplash.com/photo-1598887147682-39d28c1f1df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Cachoeira escondida com inscrições antigas">
+            <p>O rio à esquerda leva você a uma cachoeira escondida com inscrições antigas que revelam a entrada da cidade perdida. As marcas na pedra correspondem às descrições da carta!</p>
+            <div class="botoes-container">
+                <button class="btn-proximo" data-proximo="11">Explorar a cidade perdida</button>
+            </div>
+        </div>
+
+        <div class="passo" id="passo-10">
+            <img src="https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Área pantanosa na floresta">
+            <p>O rio à direita termina em uma área pantanosa. Apesar de belas vistas e uma rica vida selvagem, não há sinais da cidade perdida aqui. É necessário retornar.</p>
+            <div class="botoes-container">
+                <button class="btn-proximo" data-proximo="12">Retornar e tentar o outro rio</button>
+            </div>
+        </div>
+
+        <div class="passo" id="passo-11">
+            <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Cidade antiga perdida na floresta">
+            <p>Dentro da cidade perdida, você descobre tesouros inimagináveis e uma cultura antiga preservada no tempo. Você decide se dedicar a estudar e preservar este lugar incrível, tornando-se parte de sua história.</p>
+            <div class="botoes-container">
+                <button class="btn-proximo" data-proximo="0">Jogar novamente</button>
+            </div>
+        </div>
+
+        <div class="passo" id="passo-12">
+            <img src="https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Caminho de volta na floresta">
+            <p>Retornando e escolhendo o rio à esquerda, você finalmente encontra a cachoeira escondida e as inscrições que levam à cidade perdida. A aventura estava apenas começando!</p>
+            <div class="botoes-container">
+                <button class="btn-proximo" data-proximo="11">Explorar a cidade perdida</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const passos = document.querySelectorAll('.passo');
+            const botoes = document.querySelectorAll('.btn-proximo');
+            const barraProgresso = document.getElementById('barra-progresso');
+            const itensInventario = document.querySelectorAll('.item');
+            const controleMusica = document.getElementById('controle-musica');
+            const iconMusica = controleMusica.querySelector('i');
+            
+            // Áudio de fundo
+            const audio = new Audio('https://cdn.pixabay.com/download/audio/2022/01/20/audio_172d7dec90.mp3?filename=epic-adventure-124947.mp3');
+            audio.loop = true;
+            let musicaAtiva = true;
+            
+            // Efeitos sonoros
+            const somClique = new Audio('https://cdn.pixabay.com/download/audio/2022/03/15/audio_5c4dc96e7c.mp3?filename=page-flip-135246.mp3');
+            const somSucesso = new Audio('https://cdn.pixabay.com/download/audio/2021/10/25/audio_2705c7879c.mp3?filename=success-1-6297.mp3');
+            
+            // Atualizar barra de progresso
+            function atualizarProgresso(passoAtual) {
+                const progresso = (passoAtual / (passos.length - 1)) * 100;
+                barraProgresso.style.width = `${progresso}%`;
+                
+                // Adicionar itens ao inventário conforme o progresso
+                if (passoAtual >= 3 && passoAtual < 5) {
+                    itensInventario[0].classList.add('ativo'); // Mapa
+                }
+                if (passoAtual >= 5 && passoAtual < 7) {
+                    itensInventario[1].classList.add('ativo'); // Bússola
+                }
+                if (passoAtual >= 7) {
+                    itensInventario[2].classList.add('ativo'); // Lanterna
+                }
+            }
+            
+            // Controle de música
+            controleMusica.addEventListener('click', function() {
+                musicaAtiva = !musicaAtiva;
+                if (musicaAtiva) {
+                    audio.play();
+                    iconMusica.className = 'fas fa-volume-up';
+                } else {
+                    audio.pause();
+                    iconMusica.className = 'fas fa-volume-mute';
+                }
+            });
+            
+            // Iniciar música
+            setTimeout(() => {
+                audio.play();
+            }, 1000);
+            
+            // Configurar eventos dos botões
+            botoes.forEach(botao => {
+                botao.addEventListener('click', function() {
+                    somClique.play();
+                    
+                    const proximoPasso = this.getAttribute('data-proximo');
+                    const passoAtual = document.querySelector('.passo.ativo');
+                    
+                    passoAtual.classList.remove('ativo');
+                    passoAtual.classList.add('escondido');
+                    
+                    setTimeout(() => {
+                        document.getElementById(`passo-${proximoPasso}`).classList.add('ativo');
+                        atualizarProgresso(parseInt(proximoPasso));
+                        
+                        // Tocar som de sucesso em passos importantes
+                        if (proximoPasso === '11') {
+                            somSucesso.play();
+                        }
+                    }, 500);
+                });
+            });
+            
+            // Inicializar barra de progresso
+            atualizarProgresso(0);
+        });
+    </script>
+</body>
+</html>
